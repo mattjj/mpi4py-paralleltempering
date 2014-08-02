@@ -15,6 +15,9 @@ basetemp = 1.05
 np.random.seed(0)
 
 # TODO logging
+# TODO more than one model per mpi process? that decouples mpi processes from
+# temperatures and saves memory. but it makes the logic harder since we have to
+# think about local vs cross-machine swaps.
 
 def swap_samples(comm,model,itr):
     rank = comm.rank
@@ -27,7 +30,7 @@ def swap_samples(comm,model,itr):
         x2 = comm.recv(source=rank+1)
         if x2 is not None:
             model.set_sample(x2)
-    elif rank > 0:
+    elif rank % 2 != parity and rank > 0:
         E2, T2, x2 = comm.recv(source=rank-1)
         swap_logprob = min(0.,(E1-E2)*(1./T1 - 1./T2))
         if np.log(rand()) < swap_logprob:
@@ -52,7 +55,7 @@ def load_latest_sample(comm):
         niter_complete = 0
     else:
         filename = sorted(filenames)[-1]
-        niter_complete = int(re.findall('\d+',filename)[0])
+        niter_complete = int(re.findall('\d+',filename)[-1])
         with gzip.open(filename,'r') as infile:
             sample, rngstate = cPickle.load(infile)
         model.set_sample(sample)
@@ -63,7 +66,7 @@ def load_latest_sample(comm):
 if __name__ == '__main__':
     comm = MPI.COMM_WORLD
 
-    model, start_itr = load_latest_sample(comm)
+    model, start_iter = load_latest_sample(comm)
 
     for itr in xrange(start_iter,niter):
         for itr2 in xrange(nsamples_between_swaps):
