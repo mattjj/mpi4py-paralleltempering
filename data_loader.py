@@ -1,6 +1,6 @@
 from __future__ import division
 import numpy as np
-import sys, gzip, warnings
+import sys, os, gzip, warnings
 import cPickle as pickle
 
 import pymouse.models.svi
@@ -9,7 +9,7 @@ from pymouse.scripts.consistency import get_changepoints, \
 
 warnings.simplefilter("ignore")
 
-CACHING = False
+CACHING = True
 
 frames_to_load_per_mouse=5000
 n_points_for_init=10000
@@ -55,10 +55,6 @@ def load_data():
             assert d.ndim == 2 and d.shape[1] == 600
         reducer = np.random.normal(size=(600,60))
         data = [d.dot(reducer) for d in data]
-
-        if CACHING:
-            with gzip.open('data_loader_cache.pkl.gz','w') as outfile:
-                pickle.dump((data,changepoints,group_ids),outfile,protocol=-1)
 
     return data, changepoints, group_ids
 
