@@ -23,7 +23,8 @@ np.random.seed(0)
 
 # TODO more than one model per mpi process? that decouples mpi processes from
 # temperatures and saves memory. but it makes the logic harder since we have to
-# think about local vs cross-machine swaps.
+# think about local vs cross-machine swaps. and we lose speedup.
+# TODO monitoring script
 
 def swap_samples(comm,model,swapcounts,itr):
     rank = comm.rank
