@@ -8,16 +8,16 @@ from mpi4py import MPI
 
 import data_loader
 
-niter = 25
+niter = 3
 nsamples_between_swaps = 1
 save_every = 1
 basetemp = 1.05
 
-logging.basicConfig(
-        filename='%03d.log',
+log_options = dict(
         level=logging.INFO,
-        format='%(asctime)s %(message)s',
-        datefmt='%m/%d/%Y %I:%M:%S %p')
+        format='%(asctime)s: %(message)s',
+        datefmt='%m/%d/%Y %I:%M:%S %p',
+        )
 
 np.random.seed(0)
 
@@ -83,6 +83,8 @@ def load_latest_sample(comm):
 
 if __name__ == '__main__':
     comm = MPI.COMM_WORLD
+    logging.basicConfig(filename='%03d.log' % comm.rank, **log_options)
+
     model, swapcounts, start_iter = load_latest_sample(comm)
 
     for itr in xrange(start_iter,niter):
