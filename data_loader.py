@@ -1,14 +1,15 @@
 from __future__ import division
 import numpy as np
-import sys
+import sys, gzip, warnings
 import cPickle as pickle
-import warnings
 
 import pymouse.models.svi
 from pymouse.scripts.consistency import get_changepoints, \
         get_experiments, get_behavior, mask_data, diff_and_renorm
 
 warnings.simplefilter("ignore")
+
+CACHING = False
 
 frames_to_load_per_mouse=5000
 n_points_for_init=10000
@@ -27,29 +28,37 @@ train_experiments = ['C57-10_blank_25percenttmtindpg_6-3-13_pt2',
     'C57-3_tmttopright_25percenttmtindpg_6-3-13']
 
 def load_data():
-    ### load the data files
-    store_name = '/scratch/6-3-13 25% TMT in DPG.h5'
-    experiments = [s for s in get_experiments(store_name) if 'C57-5' not in s]
+    if CACHING and os.path.isfile('data_loader_cache.pkl.gz'):
+        with gzip.open('data_loader_cache.pkl.gz','r') as infile:
+            data, changepoints, group_ids = pickle.load(infile)
+    else:
+        ### load the data files
+        store_name = '/scratch/6-3-13 25% TMT in DPG.h5'
+        experiments = [s for s in get_experiments(store_name) if 'C57-5' not in s]
 
-    ### load the data
-    df, arrays = get_behavior(store_name=store_name,
-                            experiments=train_experiments,
-                            query="index<%d"%frames_to_load_per_mouse,
-                            array_names=["data"],
-                            median_kernel=[(i*2+1,1) for i in range(1,10)],
-                            normalize_data=True)
+        ### load the data
+        df, arrays = get_behavior(store_name=store_name,
+                                experiments=train_experiments,
+                                query="index<%d"%frames_to_load_per_mouse,
+                                array_names=["data"],
+                                median_kernel=[(i*2+1,1) for i in range(1,10)],
+                                normalize_data=True)
 
-    data = arrays['data']
-    data = diff_and_renorm(data)
+        data = arrays['data']
+        data = diff_and_renorm(data)
 
-    ### chunk it up
-    data, changepoints, group_ids = _gen_data(data, df, 'gibbs')
+        ### chunk it up
+        data, changepoints, group_ids = _gen_data(data, df, 'gibbs')
 
-    ### reduce dimensionality
-    for d in data:
-        assert d.ndim == 2 and d.shape[1] == 600
-    reducer = np.random.normal(size=(600,60))
-    data = [d.dot(reducer) for d in data]
+        ### reduce dimensionality
+        for d in data:
+            assert d.ndim == 2 and d.shape[1] == 600
+        reducer = np.random.normal(size=(600,60))
+        data = [d.dot(reducer) for d in data]
+
+        if CACHING:
+            with gzip.open('data_loader_cache.pkl.gz','w') as outfile:
+                pickle.dump((data,changepoints,group_ids),outfile,protocol=-1)
 
     return data, changepoints, group_ids
 
