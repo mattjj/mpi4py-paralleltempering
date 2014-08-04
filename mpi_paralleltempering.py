@@ -19,6 +19,8 @@ log_options = dict(
         datefmt='%m/%d/%Y %I:%M:%S %p',
         )
 
+savedir = '/scratch/'
+
 np.random.seed(0)
 
 # TODO more than one model per mpi process? that decouples mpi processes from
@@ -54,7 +56,7 @@ def swap_samples(comm,model,swapcounts,itr):
             logging.info('no swap with lower temperature')
 
 def save_sample(comm,model,swapcounts,itr):
-    filename = 'sample_%03d_%05d.pkl.gz' % (comm.rank,itr)
+    filename = os.path.join(savedir,'sample_%03d_%05d.pkl.gz' % (comm.rank,itr))
     sample = model.get_sample()
     rngstate = np.random.get_state()
     with gzip.open(filename,'w') as outfile:
@@ -65,7 +67,7 @@ def load_latest_sample(comm):
     model = data_loader.get_model(*data_loader.load_data())
     model.temperature = basetemp**comm.rank
 
-    filenames = glob.glob('sample_%03d_*.pkl.gz' % comm.rank)
+    filenames = glob.glob(os.path.join(savedir,'sample_%03d_*.pkl.gz' % comm.rank))
     if len(filenames) == 0:
         swapcounts = {(comm.rank,comm.rank+1):0,(comm.rank-1,comm.rank):0}
         niter_complete = 0
