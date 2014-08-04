@@ -10,8 +10,8 @@ import data_loader
 
 np.random.seed(0)
 
-niter = 250
-nsamples_between_swaps = 2
+niter = 1000
+nsamples_between_swaps = 1 # should be odd
 save_every = 1
 basetemp = 1.005
 
