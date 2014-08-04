@@ -8,24 +8,21 @@ from mpi4py import MPI
 
 import data_loader
 
-niter = 3
-nsamples_between_swaps = 1
+niter = 250
+nsamples_between_swaps = 2
 save_every = 1
-basetemp = 1.05
+basetemp = 1.005
 
+savedir = '/scratch/'
 log_options = dict(
         level=logging.INFO,
         format='%(asctime)s: %(message)s',
         datefmt='%m/%d/%Y %I:%M:%S %p',
         )
 
-savedir = '/scratch/'
-
 np.random.seed(0)
 
-# TODO more than one model per mpi process? that decouples mpi processes from
-# temperatures and saves memory. but it makes the logic harder since we have to
-# think about local vs cross-machine swaps. and we lose speedup.
+# TODO more than one model per mpi process
 # TODO monitoring script
 
 def swap_samples(comm,model,swapcounts,itr):
