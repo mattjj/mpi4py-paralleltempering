@@ -8,19 +8,19 @@ from mpi4py import MPI
 
 import data_loader
 
+np.random.seed(0)
+
 niter = 250
 nsamples_between_swaps = 2
 save_every = 1
 basetemp = 1.005
 
-savedir = '/scratch/'
 log_options = dict(
         level=logging.INFO,
         format='%(asctime)s: %(message)s',
         datefmt='%m/%d/%Y %I:%M:%S %p',
         )
-
-np.random.seed(0)
+savedir = '/data'
 
 # TODO more than one model per mpi process
 # TODO monitoring script
