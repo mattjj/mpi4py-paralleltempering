@@ -17,15 +17,18 @@ prefit_portion=0.25
 
 Nmax = 80
 Nsubmax = 8
+Ndim = 32
 
-train_experiments = ['C57-10_blank_25percenttmtindpg_6-3-13_pt2',
-    'C57-10_tmttopright_25percenttmtindpg_6-3-13_pt2',
-    'C57-1_blank_25percenttmtindpg_6-3-13',
-    'C57-1_tmttopright_25percenttmtindpg_6-3-13',
-    'C57-2_blank_25percenttmtindpg_6-3-13',
-    'C57-2_tmttopright_25percenttmtindpg_6-3-13',
-    'C57-3_blank_25percenttmtindpg_6-3-13',
-    'C57-3_tmttopright_25percenttmtindpg_6-3-13']
+train_experiments = [
+        'C57-10_blank_25percenttmtindpg_6-3-13_pt2',
+        'C57-10_tmttopright_25percenttmtindpg_6-3-13_pt2',
+        'C57-1_blank_25percenttmtindpg_6-3-13',
+        'C57-1_tmttopright_25percenttmtindpg_6-3-13',
+        'C57-2_blank_25percenttmtindpg_6-3-13',
+        'C57-2_tmttopright_25percenttmtindpg_6-3-13',
+        'C57-3_blank_25percenttmtindpg_6-3-13',
+        'C57-3_tmttopright_25percenttmtindpg_6-3-13',
+        ]
 
 def load_data():
     if CACHING and os.path.isfile('data_loader_cache.pkl.gz'):
@@ -53,7 +56,7 @@ def load_data():
         ### reduce dimensionality
         for d in data:
             assert d.ndim == 2 and d.shape[1] == 600
-        reducer = np.random.normal(size=(600,60))
+        reducer = np.random.normal(size=(600,Ndim))
         data = [d.dot(reducer) for d in data]
 
     return data, changepoints, group_ids

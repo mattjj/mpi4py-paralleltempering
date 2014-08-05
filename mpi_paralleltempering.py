@@ -2,7 +2,7 @@
 from __future__ import division
 import numpy as np
 from numpy.random import rand
-import gzip, cPickle, glob, re, logging
+import gzip, cPickle, glob, re, logging, os
 from operator import xor
 from mpi4py import MPI
 
