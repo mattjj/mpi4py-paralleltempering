@@ -10,10 +10,10 @@ import data_loader
 
 np.random.seed(0)
 
-niter = 1000
-nsamples_between_swaps = 1 # should be odd
+niter = 2000
+nsamples_between_swaps = 1
 save_every = 1
-basetemp = 1.005
+basetemp = 1.003
 
 log_options = dict(
         level=logging.INFO,
