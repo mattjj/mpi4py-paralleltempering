@@ -8,22 +8,33 @@ from mpi4py import MPI
 
 import data_loader
 
+# TODO more than one model per mpi process?
+
+###########
+#  setup  #
+###########
+
 np.random.seed(0)
 
-niter = 2000
+niter = 3000
 nsamples_between_swaps = 1
 save_every = 1
-basetemp = 1.003
+
+def temperature(rank):
+    return 1.003 ** rank
 
 log_options = dict(
         level=logging.INFO,
         format='%(asctime)s: %(message)s',
         datefmt='%m/%d/%Y %I:%M:%S %p',
         )
+
 savedir = '/data'
 
-# TODO more than one model per mpi process
-# TODO monitoring script
+##########
+#  code  #
+##########
+
 
 def swap_samples(comm,model,swapcounts,itr):
     rank = comm.rank
@@ -62,7 +73,7 @@ def save_sample(comm,model,swapcounts,itr):
 
 def load_latest_sample(comm):
     model = data_loader.get_model(*data_loader.load_data())
-    model.temperature = basetemp**comm.rank
+    model.temperature = temperature(rank)
 
     filenames = glob.glob(os.path.join(savedir,'sample_%03d_*.pkl.gz' % comm.rank))
     if len(filenames) == 0:

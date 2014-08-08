@@ -75,7 +75,7 @@ def _gen_data(data, df, method):
     return data, changepoints, group_ids
 
 def get_model(data,changepoints,group_ids):
-    pymousemodel = pymouse.models.svi.GMMHSMM(
+    pymousemodel = pymouse.models.svi.GMMHSMMSeparateTrans(
             Nmax=Nmax, Nsubmax=Nsubmax,
             method='gibbs',
             n_iter=0, max_r=8, n_points_for_init=n_points_for_init,
