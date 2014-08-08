@@ -73,7 +73,7 @@ def save_sample(comm,model,swapcounts,itr):
 
 def load_latest_sample(comm):
     model = data_loader.get_model(*data_loader.load_data())
-    model.temperature = temperature(rank)
+    model.temperature = temperature(comm.rank)
 
     filenames = glob.glob(os.path.join(savedir,'sample_%03d_*.pkl.gz' % comm.rank))
     if len(filenames) == 0:
